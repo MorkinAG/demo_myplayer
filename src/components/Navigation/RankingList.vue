@@ -7,8 +7,8 @@
             <div class="tofor"  v-for="(item,index) in Rankings" :key="index" @change="hover"> <!--根据数据循环渲染此块-->
               <div class="links"> <!--装入音乐链接进行跳转-->
                 <img :src="item.pic_small">                <!-- 歌曲封面图片 -->
-                <p style="text-overflow: ellipsis;">{{ item.title }}</p>         <!-- 歌曲名 -->
-                <p>人气：{{ item.hot }}</p><!--热度-->
+                <p class="songtitle">{{ item.title }}</p>         <!-- 歌曲名-->
+                <p class="songhot">人气：{{ item.hot }}</p>     <!--热度-->
               </div>
              </div>
           </div>
@@ -59,7 +59,7 @@
     background-color: #E9EEF3;
     color: #333;
     text-align: center;
-    line-height: 160px;
+    line-height: 30px;
     padding 0;
     height 1000px;
   }
@@ -93,16 +93,17 @@
     }
 
   .links:hover{
-    position:relative;
     transform: scale(1.1);
   }
 .links>img{
-  position relative
-  float left
+  float left;
 }
-  .links>p {
-    height 30px
-    position relative
-    top:-60px;
+  .links>songtitle{
+    height 60px
+    line-height 20px
+  }
+  .links>.songhot {
+    overflow:hidden
+    height: 30px;
   }
 </style>
