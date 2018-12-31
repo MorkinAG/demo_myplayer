@@ -1,7 +1,9 @@
 <template>
     <div id="RankingList">
       <el-container>
-        <el-header>热曲</el-header>
+        <el-header>
+          <span>热曲</span>
+        </el-header>
         <el-main>
           <div class="MainBox"> <!--包裹排行列表-->
             <div class="tofor"  v-for="(item,index) in Rankings" :key="index"> <!--根据数据循环渲染此块-->
@@ -23,25 +25,59 @@
               </div>
              </div>
           </div>
+          <div class="block">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="currentPage1"
+              :page-size="pagesize"
+              layout="prev, pager, next, jumper"
+              :total="500">
+            </el-pagination>
+          </div>
         </el-main>
       </el-container>
     </div>
 </template>
 
 <script>
+
     export default {
         name: "RankingList",
       data() {
+
           return{
-            Rankings:[]
+            pagenum:'',
+            pagesize:30,//每页显示数量
+            isoffset:'' ,//偏移量，int类型，值为 5 时就不会显示前面 5 条数据
+            Rankings:[],//存储数据
+            currentPage1: 1
           }
       },
-      mounted(){
-        var url = this.HOST + "/v1/restserver/ting?method=baidu.ting.billboard.billList&type=2&size=75&offset=0";//在size后面输入要渲染的歌曲数量
-        this.$axios.get(url).then(res =>{                                                                       //<el-main>标签会根据渲染的占用自增长高度
+
+      methods: {
+        handleSizeChange(val) {
+          console.log(`每页 ${val} 条`);
+        },
+        handleCurrentChange(val) { //检测到页码变化时翻页查询数据
+          this.pagenum = `${val}`; //获取页码
+          var url = this.HOST + "/v1/restserver/ting?method=baidu.ting.billboard.billList&type=2&size="+this.pagesize+"&offset="+this.isoffset;//在size后面输入要渲染的歌曲数量
+          this.$axios.get(url).then(res =>{                                                                       //<el-main>标签会根据渲染的占用自增长高度
             this.Rankings = res.data.song_list;//获取数据中的歌曲列表数据装入数组备用                               之后会做翻页
             console.log(this.Rankings);//输出到控制台
-          })
+          });
+          this.isoffset = this.pagesize * this.pagenum;//第一页显示了20条数据，翻页到第二页时值为20( 每页显示数量 乘 页数 )
+          console.log("当前页码"+this.pagenum);
+          console.log("当前每页显示数量(查询量)"+this.pagesize);
+          console.log("当前偏移量"+this.isoffset);
+        },
+      },
+      mounted(){
+        var url = this.HOST + "/v1/restserver/ting?method=baidu.ting.billboard.billList&type=2&size="+this.pagesize+"&offset=60";
+        this.$axios.get(url).then(res =>{
+          this.Rankings = res.data.song_list;//获取数据中的歌曲列表数据装入数组备用
+          console.log(this.Rankings);//输出到控制台
+        });
       },
 
     }
@@ -49,16 +85,22 @@
 
 <style lang="stylus" scoped>
 
-  .el-header, .el-footer {
+  .el-header{
     background-color: #333;
     color: #fff;
-    padding: 0 150px;
     font-size: 30px;
     line-height: 60px;
+    position: fixed;
+    padding: 0 150px;
+    z-index:999;
   }
+    .el-header>span{
+      float left
+    }
+
 .el-header, .el-main{
-  width 100%;
   margin 0 auto;
+  width 100%;
 }
   .el-aside {
     background-color: #D3DCE6;
@@ -84,8 +126,7 @@
   .MainBox {
     width 1100px
     background darkseagreen
-    margin 0 auto;
-
+    margin 70px auto 0;
   }
   .tofor{
     width 200px
@@ -101,7 +142,7 @@
       width 200px
       height 90px
       position absolute
-      z-index 999
+      z-index 100
       transition: all 0.5s ease 0s
     }
 
@@ -124,5 +165,14 @@
     position relative
     bottom 0px
     right -40px
+  }
+  .block{
+    position:fixed;
+    bottom 0
+    z-index 110
+    background #fff
+    border-radius 5px
+    margin 0 auto
+    width 100%
   }
 </style>
